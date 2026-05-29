@@ -14,7 +14,22 @@ int main() {
 			if (path.compare(0, 7, "default")) jvm_dirs.push_back(path);
 		}
 	}
+
+	std::cout << "Select the version to set:" << std::endl;
+	int i = 0;
 	for (ji = jvm_dirs.begin(); ji != jvm_dirs.end(); ++ji) {
-		std::cout << *ji << std::endl;
+		i++;
+
+		std::cout << i << ". " << *ji << std::endl;
 	}
+
+	long unsigned int response;
+	std::cin >> std::setw(1) >> response;
+
+	if (response > jvm_dirs.size() || response < 1) {
+		std::cout << "Error: Invalid size" << std::endl;
+		std::exit(1);
+	}
+	
+	std::cout << JVM_LIB_PATH << jvm_dirs.at(response - 1) << std::endl;
 }
