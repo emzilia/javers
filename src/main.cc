@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <filesystem>
+#include <unistd.h>
+#include <errno.h>
 
 std::vector<std::string> jvm_dirs;
 std::vector<std::string>::iterator ji;
@@ -37,18 +39,24 @@ int main() {
 	std::string full_path =  JVM_LIB_PATH + selection;
 	std::cout << full_path << std::endl;
 
-	try {
-		std::filesystem::remove_all(JAVA_DEFAULT_PATH);
-		std::filesystem::remove_all(JAVA_DEFAULT_RUNTIME_PATH);
-	} catch (const std::filesystem::filesystem_error& ex) {
-		perror("Error - Unable to remove old symlinks");
-		exit(EXIT_FAILURE);
+	// ENOENT == no such file or dir, can still create the links if they don't exist
+	if (unlink(JAVA_DEFAULT_PATH.c_str()) == -1) {
+		if (errno != ENOENT) {
+			perror("Error - Unable to remove default path symlink");
+			exit(EXIT_FAILURE);
+		}
+	}
+	if (unlink(JAVA_DEFAULT_RUNTIME_PATH.c_str()) == -1) {
+		if (errno != ENOENT) {
+			perror("Error - Unable to remove default-runtime path symlink");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	try {
 		std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_PATH);
 		std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_RUNTIME_PATH);
-	} catch (const std::filesystem::filesystem_error& ex) {
+	} catch (const std::filesystem::filesystem_error & ex) {
 		perror("Error - Unable to create new symlinks");
 		exit(EXIT_FAILURE);
 	}
