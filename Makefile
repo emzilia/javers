@@ -5,7 +5,7 @@ CC_FLAGS = -g -Wall
 SRC_DIR = src
 BIN_DIR = bin
 BUILD_DIR = build
-INSTALL_DIR = ~/.local/bin
+INSTALL_DIR = /usr/bin
 
 SRCS = $(wildcard $(SRC_DIR)/*.cc)
 OBJS = $(patsubst %.cc,$(BUILD_DIR)/%.o,$(notdir $(SRCS)))
@@ -22,7 +22,6 @@ $(TARGET): $(OBJS)
 	$(CC) $^ -o $@ $(CC_FLAGS) $(LD_FLAGS)
 
 install:
-	@mkdir -p $(INSTALL_DIR)
 	cp $(TARGET) $(INSTALL_DIR)
 
 uninstall:
