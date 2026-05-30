@@ -22,7 +22,6 @@ int main() {
 	int i = 0;
 	for (ji = jvm_dirs.begin(); ji != jvm_dirs.end(); ++ji) {
 		i++;
-
 		std::cout << i << ". " << *ji << std::endl;
 	}
 
@@ -30,16 +29,29 @@ int main() {
 	std::cin >> std::setw(1) >> response;
 
 	if (response > jvm_dirs.size() || response < 1) {
-		std::cout << "Error: Invalid selection" << std::endl;
-		std::exit(1);
+		std::cout << "Error - Invalid selection" << std::endl;
+		exit(EXIT_FAILURE);
 	}
 
 	std::string selection = jvm_dirs.at(response - 1);
 	std::string full_path =  JVM_LIB_PATH + selection;
 	std::cout << full_path << std::endl;
 
-	std::filesystem::remove_all(JAVA_DEFAULT_PATH);
-	std::filesystem::remove_all(JAVA_DEFAULT_RUNTIME_PATH);
-	std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_PATH);
-	std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_RUNTIME_PATH);
+	try {
+		std::filesystem::remove_all(JAVA_DEFAULT_PATH);
+		std::filesystem::remove_all(JAVA_DEFAULT_RUNTIME_PATH);
+	} catch (const std::filesystem::filesystem_error& ex) {
+		perror("Error - Unable to remove old symlinks");
+		exit(EXIT_FAILURE);
+	}
+
+	try {
+		std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_PATH);
+		std::filesystem::create_directory_symlink(full_path, JAVA_DEFAULT_RUNTIME_PATH);
+	} catch (const std::filesystem::filesystem_error& ex) {
+		perror("Error - Unable to create new symlinks");
+		exit(EXIT_FAILURE);
+	}
+
+	exit(EXIT_SUCCESS);
 }
